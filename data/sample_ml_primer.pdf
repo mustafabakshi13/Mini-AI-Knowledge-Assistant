@@ -1,0 +1,81 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 750 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+(Machine Learning Primer - Document 2) Tj
+T*
+T*
+(Section 1: Supervised vs Unsupervised Learning) Tj
+T*
+(Machine learning is categorized into three primary paradigms:) Tj
+T*
+(1. Supervised Learning: Algorithms are trained on labeled data where inputs are paired with target outputs.) Tj
+T*
+(Common supervised tasks include classification and linear regression.) Tj
+T*
+(2. Unsupervised Learning: Algorithms discover hidden patterns, groupings, or clusters in unlabeled data.) Tj
+T*
+(Prominent unsupervised techniques include k-means clustering and principal component analysis \(PCA\).) Tj
+T*
+(3. Reinforcement Learning: Agents learn through trial-and-error by interacting with an environment to maximize rewards.) Tj
+T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 625 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+(Section 2: Gradient Descent and Optimization) Tj
+T*
+(Optimization is the engine of modern neural network training. Gradient descent is an iterative) Tj
+T*
+(first-order optimization algorithm used to find a local minimum of a differentiable objective function.) Tj
+T*
+(The algorithm calculates the gradient of the loss function with respect to model weights and updates the) Tj
+T*
+(weights in the opposite direction of the gradient scaled by a hyperparameter called the learning rate.) Tj
+T*
+T*
+(Variants such as Stochastic Gradient Descent \(SGD\) and Adam are widely used in practice.) Tj
+T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000001048 00000 n 
+0000001174 00000 n 
+0000001850 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+1920
+%%EOF

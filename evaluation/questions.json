@@ -1,0 +1,37 @@
+[
+  {
+    "id": "q1",
+    "question": "What is Retrieval-Augmented Generation?",
+    "expected_source": "sample.pdf",
+    "expected_page": 1,
+    "topic": "RAG Concept"
+  },
+  {
+    "id": "q2",
+    "question": "What are the core stages of a typical RAG pipeline?",
+    "expected_source": "sample.pdf",
+    "expected_page": 2,
+    "topic": "RAG Pipeline"
+  },
+  {
+    "id": "q3",
+    "question": "What parameters govern document chunking and how do they prevent context loss?",
+    "expected_source": "sample.pdf",
+    "expected_page": 3,
+    "topic": "Chunking Strategy"
+  },
+  {
+    "id": "q4",
+    "question": "What is the difference between supervised and unsupervised learning?",
+    "expected_source": "sample_ml_primer.pdf",
+    "expected_page": 1,
+    "topic": "Machine Learning"
+  },
+  {
+    "id": "q5",
+    "question": "How does gradient descent optimize neural network weights?",
+    "expected_source": "sample_ml_primer.pdf",
+    "expected_page": 2,
+    "topic": "Optimization"
+  }
+]

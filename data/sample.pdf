@@ -1,0 +1,137 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 916 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+(Mini AI Knowledge Assistant - Sample Document) Tj
+T*
+T*
+(Section 1: What is Retrieval-Augmented Generation \(RAG\)?) Tj
+T*
+(Retrieval-Augmented Generation, commonly known as RAG, is an artificial intelligence framework) Tj
+T*
+(designed to improve the quality of large language model responses by grounding the model on) Tj
+T*
+(external knowledge sources. While standard language models are trained on large corpuses of data,) Tj
+T*
+(their knowledge is static and cut off at their training date. Furthermore, models can generate) Tj
+T*
+(factually incorrect information, a phenomenon known as hallucination.) Tj
+T*
+T*
+(RAG addresses these challenges by retrieving authoritative facts from an external knowledge base) Tj
+T*
+(before generating a response. This allows the model to reference timely and private data,) Tj
+T*
+(substantially reducing the likelihood of hallucinations.) Tj
+T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 828 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+(Section 2: The Core RAG Pipeline) Tj
+T*
+(The architecture of a typical RAG system consists of three fundamental stages:) Tj
+T*
+(1. Ingestion: Documents such as PDFs or text files are parsed, cleaned, and split into smaller) Tj
+T*
+(manageable segments called text chunks.) Tj
+T*
+(2. Indexing: Each chunk is passed through an embedding model to produce a high-dimensional vector) Tj
+T*
+(representation. These vectors are stored in a vector database such as FAISS or Chroma.) Tj
+T*
+(3. Retrieval and Generation: When a user poses a question, the query is converted into an embedding.) Tj
+T*
+(The vector database performs a cosine similarity search to find the most relevant chunks.) Tj
+T*
+(Finally, the retrieved chunks and the user query are assembled into a prompt and submitted to an LLM.) Tj
+T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 687 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+(Section 3: Chunking Strategies and Grounded Answering) Tj
+T*
+(Chunking is the process of breaking long documents into cohesive, smaller units. Two primary) Tj
+T*
+(parameters govern chunking: chunk size and chunk overlap. Chunk size determines the maximum length) Tj
+T*
+(of each fragment, while chunk overlap ensures that context spanning chunk boundaries is not lost.) Tj
+T*
+T*
+(To guarantee grounded answers, the system prompt must explicitly instruct the LLM to answer only) Tj
+T*
+(using the retrieved facts. If the information is missing from the context, the assistant must) Tj
+T*
+(state that it cannot find the answer rather than speculating.) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 34 >>
+stream
+BT
+/F1 11 Tf
+50 720 Td
+15 TL
+T*
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000001227 00000 n 
+0000001354 00000 n 
+0000002233 00000 n 
+0000002360 00000 n 
+0000003098 00000 n 
+0000003226 00000 n 
+0000003311 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+3382
+%%EOF

@@ -1,0 +1,16 @@
+# Mini AI Knowledge Assistant - Dependencies
+# Phase 1: Foundation & Environment Configuration
+python-dotenv>=1.0.0
+
+# Phase 2: Document Ingestion & Text Chunking
+pypdf>=5.0.0
+
+# Phase 3: Embeddings & Vector Store
+google-genai>=2.0.0
+numpy>=2.0.0
+
+# Phase 4: RAG Engine
+# (Uses google-genai, numpy, and pypdf)
+
+# Phase 5: Streamlit User Interface
+streamlit>=1.30.0

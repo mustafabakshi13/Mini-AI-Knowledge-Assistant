@@ -1,0 +1,49 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
+.env
+*.env
+!.env.example
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Vector Store & Index Artifacts
+vector_store_data/
+data/vector_store/
+data/uploads/
+*.index
+*.faiss
+*.pkl
+*.npz
+*.npy
+chroma_db/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor / IDE settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS Generated Files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Streamlit Secrets & Local Cache
+.streamlit/secrets.toml
+.streamlit/*.local
+
