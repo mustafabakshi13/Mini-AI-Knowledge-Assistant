@@ -18,17 +18,21 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # Gemini API & Model Settings
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
-# Check Streamlit secrets if GEMINI_API_KEY is not set or is placeholder
-if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here":
-    try:
-        import streamlit as st
-        if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets:
-            GEMINI_API_KEY = str(st.secrets["GEMINI_API_KEY"]).strip()
-    except Exception:
-        pass
-
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-2").strip()
+
+# Check Streamlit secrets if running in Streamlit Cloud
+try:
+    import streamlit as st
+    if hasattr(st, "secrets"):
+        if (not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here") and "GEMINI_API_KEY" in st.secrets:
+            GEMINI_API_KEY = str(st.secrets["GEMINI_API_KEY"]).strip()
+        if "GEMINI_MODEL" in st.secrets:
+            GEMINI_MODEL = str(st.secrets["GEMINI_MODEL"]).strip()
+        if "GEMINI_EMBEDDING_MODEL" in st.secrets:
+            GEMINI_EMBEDDING_MODEL = str(st.secrets["GEMINI_EMBEDDING_MODEL"]).strip()
+except Exception:
+    pass
 
 # Chunking Parameters (Configurable for Phase 2)
 DEFAULT_CHUNK_SIZE = int(os.getenv("DEFAULT_CHUNK_SIZE", "500"))
