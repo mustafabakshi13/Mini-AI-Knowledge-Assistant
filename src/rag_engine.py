@@ -227,27 +227,31 @@ class RAGEngine:
             temperature=0.0,  # Strict determinism for factual grounding
         )
 
-        try:
-            response = self.llm_client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=config,
-            )
-            answer_text = response.text.strip() if response.text else FALLBACK_NO_CONTEXT_MESSAGE
-        except Exception as exc:
-            # Handle Google's deprecation of gemini-2.5-flash for new accounts
-            if "no longer available" in str(exc).lower() and ("gemini-3.6-flash" in str(exc) or "gemini-2.5-flash" in self.model):
-                try:
-                    response = self.llm_client.models.generate_content(
-                        model="gemini-3.6-flash",
-                        contents=prompt,
-                        config=config,
-                    )
-                    answer_text = response.text.strip() if response.text else FALLBACK_NO_CONTEXT_MESSAGE
-                except Exception:
-                    raise RuntimeError(f"Gemini LLM generation failed: {exc}") from exc
-            else:
+        models_to_try = [self.model]
+        for fallback in ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-3.1-flash-lite"]:
+            if fallback not in models_to_try:
+                models_to_try.append(fallback)
+
+        last_exc = None
+        answer_text = None
+        for current_model in models_to_try:
+            try:
+                response = self.llm_client.models.generate_content(
+                    model=current_model,
+                    contents=prompt,
+                    config=config,
+                )
+                answer_text = response.text.strip() if response.text else FALLBACK_NO_CONTEXT_MESSAGE
+                break
+            except Exception as exc:
+                last_exc = exc
+                err_msg = str(exc).lower()
+                if "no longer available" in err_msg or "not_found" in err_msg or "503" in err_msg or "unavailable" in err_msg:
+                    continue
                 raise RuntimeError(f"Gemini LLM generation failed: {exc}") from exc
+
+        if answer_text is None:
+            raise RuntimeError(f"Gemini LLM generation failed across all models: {last_exc}") from last_exc
 
         return RAGResponse(
             answer=answer_text,
