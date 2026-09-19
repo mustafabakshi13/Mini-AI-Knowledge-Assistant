@@ -15,18 +15,30 @@ DATA_DIR = BASE_DIR / "data"
 # Load variables from .env file if present
 load_dotenv(dotenv_path=BASE_DIR / ".env")
 
-# Gemini API & Model Settings
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+def get_gemini_api_key() -> str:
+    """Retrieves the Gemini API key from environment or Streamlit secrets."""
+    key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
+    if not key or key == "your_gemini_api_key_here":
+        try:
+            import streamlit as st
+            if hasattr(st, "secrets"):
+                for candidate in ["GEMINI_API_KEY", "gemini_api_key", "GOOGLE_API_KEY", "google_api_key"]:
+                    if candidate in st.secrets:
+                        key = str(st.secrets[candidate]).strip()
+                        break
+        except Exception:
+            pass
+    return key.strip("'\"")
+
+
+GEMINI_API_KEY = get_gemini_api_key()
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-2").strip()
 
-# Check Streamlit secrets if running in Streamlit Cloud
 try:
     import streamlit as st
     if hasattr(st, "secrets"):
-        if (not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here") and "GEMINI_API_KEY" in st.secrets:
-            GEMINI_API_KEY = str(st.secrets["GEMINI_API_KEY"]).strip()
         if "GEMINI_MODEL" in st.secrets:
             GEMINI_MODEL = str(st.secrets["GEMINI_MODEL"]).strip()
         if "GEMINI_EMBEDDING_MODEL" in st.secrets:

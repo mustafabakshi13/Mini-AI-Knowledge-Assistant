@@ -17,6 +17,7 @@ from src.config import (
     RETRIEVAL_SCORE_THRESHOLD,
     UPLOADS_DIR,
     VECTOR_STORE_DIR,
+    get_gemini_api_key,
 )
 from src.loader import compute_file_hash, load_pdf
 from src.chunker import chunk_document_pages
@@ -91,7 +92,8 @@ def load_rag_components():
     """
     store = VectorStore(storage_dir=VECTOR_STORE_DIR)
     is_loaded = False
-    has_active_key = bool(GEMINI_API_KEY) and GEMINI_API_KEY != "your_gemini_api_key_here"
+    current_key = get_gemini_api_key()
+    has_active_key = bool(current_key) and current_key != "your_gemini_api_key_here"
     expected_dim = 3072 if has_active_key else 8
 
     try:
@@ -117,7 +119,7 @@ def load_rag_components():
                     pass
             is_loaded = store.count > 0
 
-    engine = RAGEngine(vector_store=store) if is_loaded else None
+    engine = RAGEngine(vector_store=store, api_key=current_key) if is_loaded else None
     return store, engine, is_loaded
 
 
@@ -126,7 +128,8 @@ def main():
     if "conversation" not in st.session_state:
         st.session_state.conversation = []
 
-    has_active_key = bool(GEMINI_API_KEY) and GEMINI_API_KEY != "your_gemini_api_key_here"
+    current_key = get_gemini_api_key()
+    has_active_key = bool(current_key) and current_key != "your_gemini_api_key_here"
 
     # 4. System Initialization & Knowledge Base Status
     store, engine, is_loaded = load_rag_components()
@@ -219,8 +222,8 @@ def main():
     if not has_active_key:
         st.warning(
             "⚠️ **Gemini API Key is not configured.**\n\n"
-            "Set `GEMINI_API_KEY` in `.env` to enable live Gemini embeddings and answers. "
-            "Offline simulations are active for testing."
+            "Configure `GEMINI_API_KEY` in Streamlit Cloud Secrets (App Settings → Secrets) or in `.env` locally "
+            "to enable live Gemini embeddings and answers."
         )
 
     # Question Input
