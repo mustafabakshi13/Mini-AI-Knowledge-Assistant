@@ -6,14 +6,17 @@ in a centralized, readable manner.
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
 # Base directory paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 
-# Load variables from .env file if present
-load_dotenv(dotenv_path=BASE_DIR / ".env")
+# Load variables from .env file if present (optional in cloud environments)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=BASE_DIR / ".env")
+except Exception:
+    pass
 
 def get_gemini_api_key() -> str:
     """Retrieves the Gemini API key from environment or Streamlit secrets."""

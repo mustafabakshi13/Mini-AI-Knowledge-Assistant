@@ -9,6 +9,14 @@ Provides an interactive interface supporting:
 - Expandable source citation inspection
 """
 
+import sys
+from pathlib import Path
+
+# Guarantee that the repository root is on sys.path
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from src.config import (
     DATA_DIR,

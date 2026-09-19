@@ -1,11 +1,19 @@
-"""Entrypoint alias for Streamlit Community Cloud.
+"""Entrypoint for Streamlit Community Cloud.
 
-Redirects execution to app.py so that deployments targeting either
-'app.py' or 'streamlit_app.py' as the main file path work seamlessly.
+Ensures the repository root is properly added to sys.path and executes the
+main Streamlit application from app.py.
 """
 
+import sys
 from pathlib import Path
-import runpy
 
-app_path = Path(__file__).parent / "app.py"
-runpy.run_path(str(app_path), run_name="__main__")
+# Guarantee that the repository root is on sys.path
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+# Import and execute the app directly
+from app import main
+
+if __name__ == "__main__":
+    main()
