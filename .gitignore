@@ -20,6 +20,7 @@ __pycache__/
 vector_store_data/
 data/vector_store/
 data/uploads/
+data/sample_documents/
 *.index
 *.faiss
 *.pkl
