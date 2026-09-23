@@ -84,11 +84,12 @@ class VectorStore:
             return self.count
 
         new_vectors = []
+        new_chunks_data = []
         for chunk, emb in chunks_with_embeddings:
             if not emb:
                 raise ValueError("Encountered empty embedding vector.")
             new_vectors.append(emb)
-            self.chunks_data.append({
+            new_chunks_data.append({
                 "text": chunk.text,
                 "metadata": chunk.metadata,
             })
@@ -97,6 +98,7 @@ class VectorStore:
 
         if self.embeddings is None:
             self.embeddings = new_arr
+            self.chunks_data.extend(new_chunks_data)
         else:
             if new_arr.shape[1] != self.dimension:
                 raise ValueError(
@@ -104,6 +106,7 @@ class VectorStore:
                     f"incoming batch has {new_arr.shape[1]}."
                 )
             self.embeddings = np.vstack([self.embeddings, new_arr])
+            self.chunks_data.extend(new_chunks_data)
 
         return self.count
 

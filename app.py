@@ -11,6 +11,7 @@ Provides an interactive interface supporting:
 
 import sys
 from pathlib import Path
+from typing import Optional, Tuple
 
 # Guarantee that the repository root is on sys.path
 ROOT_DIR = Path(__file__).resolve().parent
@@ -46,9 +47,13 @@ def index_pdf_file(
     file_bytes: bytes,
     filename: str,
     store: VectorStore,
-    has_active_key: bool,
+    has_active_key: bool = False,
+    api_key: Optional[str] = None,
 ) -> tuple[bool, str]:
     """Processes, chunks, embeds, and indexes a single PDF document into the VectorStore."""
+    if not file_bytes:
+        return False, f"File '{filename}' contains no data (empty buffer)."
+
     file_hash = compute_file_hash(file_bytes)
     if store.is_document_indexed(file_hash):
         return False, f"Document '{filename}' is already indexed (duplicate detected)."
@@ -64,21 +69,30 @@ def index_pdf_file(
         chunks = chunk_document_pages(pages)
 
         if not chunks:
+            temp_path.unlink(missing_ok=True)
             return False, f"No extractable text chunks found in '{filename}'."
 
         if has_active_key:
             from src.embeddings import GeminiEmbedder
-            embedder = GeminiEmbedder()
+            effective_key = api_key or get_gemini_api_key()
+            embedder = GeminiEmbedder(api_key=effective_key)
             chunks_with_emb = embedder.embed_chunks(chunks)
         else:
             # Deterministic simulation vectors when running offline
             import numpy as np
             chunks_with_emb = []
             keywords = ["rag", "retrieval", "chunk", "learning", "gradient", "optimization", "model", "vector"]
+            target_dim = store.dimension if store.dimension > 0 else len(keywords)
             for c in chunks:
                 lower = c.text.lower()
                 v = [float(lower.count(k) + 0.1) for k in keywords]
-                norm = np.linalg.norm(v)
+                if target_dim != len(keywords):
+                    if len(v) < target_dim:
+                        v = v + [0.1] * (target_dim - len(v))
+                    else:
+                        v = v[:target_dim]
+                norm = float(np.linalg.norm(v))
+                norm = norm if norm > 0.0 else 1.0
                 chunks_with_emb.append((c, [float(x / norm) for x in v]))
 
         store.add_chunks(chunks_with_emb)
@@ -86,6 +100,7 @@ def index_pdf_file(
         store.save()
         return True, f"Successfully indexed '{filename}' ({len(chunks)} chunks)."
     except Exception as exc:
+        temp_path.unlink(missing_ok=True)
         return False, f"Failed to process '{filename}': {exc}"
 
 
@@ -122,7 +137,13 @@ def load_rag_components():
             for pdf_path in base_pdfs:
                 try:
                     with open(pdf_path, "rb") as f:
-                        index_pdf_file(f.read(), pdf_path.name, store, has_active_key)
+                        index_pdf_file(
+                            f.read(),
+                            pdf_path.name,
+                            store,
+                            has_active_key=has_active_key,
+                            api_key=current_key,
+                        )
                 except Exception:
                     pass
             is_loaded = store.count > 0
@@ -175,6 +196,15 @@ def main():
 
         st.markdown("---")
         st.subheader("Add Documents")
+
+        # Display persistent feedback from previous indexing action across reruns
+        if "indexing_results" in st.session_state:
+            for success, msg in st.session_state.pop("indexing_results", []):
+                if success:
+                    st.success(msg)
+                else:
+                    st.warning(msg)
+
         uploaded_files = st.file_uploader(
             "Upload PDF Documents",
             type=["pdf"],
@@ -186,16 +216,23 @@ def main():
             if st.button("Index Uploaded Files", type="secondary"):
                 with st.spinner("Processing and indexing documents..."):
                     progress_bar = st.progress(0)
+                    indexing_results = []
                     for i, uploaded_file in enumerate(uploaded_files):
-                        file_bytes = uploaded_file.read()
-                        success, msg = index_pdf_file(
-                            file_bytes, uploaded_file.name, store, has_active_key
+                        file_bytes = (
+                            uploaded_file.getvalue()
+                            if hasattr(uploaded_file, "getvalue")
+                            else uploaded_file.read()
                         )
-                        if success:
-                            st.success(msg)
-                        else:
-                            st.warning(msg)
+                        success, msg = index_pdf_file(
+                            file_bytes,
+                            uploaded_file.name,
+                            store,
+                            has_active_key=has_active_key,
+                            api_key=current_key,
+                        )
+                        indexing_results.append((success, msg))
                         progress_bar.progress((i + 1) / len(uploaded_files))
+                    st.session_state["indexing_results"] = indexing_results
                     load_rag_components.clear()
                     st.rerun()
 
@@ -212,9 +249,15 @@ def main():
                         all_pdfs.extend(list(UPLOADS_DIR.glob("*.pdf")))
                     for pdf_path in all_pdfs:
                         with open(pdf_path, "rb") as f:
-                            index_pdf_file(f.read(), pdf_path.name, store, has_active_key)
+                            index_pdf_file(
+                                f.read(),
+                                pdf_path.name,
+                                store,
+                                has_active_key=has_active_key,
+                                api_key=current_key,
+                            )
                     load_rag_components.clear()
-                    st.success("Index rebuilt successfully!")
+                    st.session_state["indexing_results"] = [(True, "Index rebuilt successfully!")]
                     st.rerun()
 
         with col2:

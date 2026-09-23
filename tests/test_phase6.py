@@ -131,6 +131,86 @@ class TestPhase6Features(unittest.TestCase):
                 (UPLOADS_DIR / "uploaded_test_doc.pdf").unlink(missing_ok=True)
                 (UPLOADS_DIR / "uploaded_test_doc_copy.pdf").unlink(missing_ok=True)
 
+    def test_append_upload_to_existing_knowledge_base(self):
+        """Test 7: Regression test for appending an uploaded PDF to an existing multi-document knowledge base.
+
+        Verifies:
+        - Initial store has existing indexed documents (sample.pdf, sample_ml_primer.pdf).
+        - Uploading a new PDF appends new chunks without replacing or clearing existing ones.
+        - Old chunks and metadata are strictly preserved.
+        - The uploaded document chunks become retrievable via vector search.
+        - Re-uploading the same content is rejected by duplicate detection.
+        - Persisted vector store on disk reloads with the combined chunk count.
+        """
+        from app import index_pdf_file
+        from src.config import UPLOADS_DIR
+        from data.create_sample_pdf import generate_pdf
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = VectorStore(storage_dir=temp_dir)
+            # Step 1: Pre-populate store with sample.pdf and sample_ml_primer.pdf
+            for pdf_path in [self.pdf1, self.pdf2]:
+                with open(pdf_path, "rb") as f:
+                    ok, _ = index_pdf_file(f.read(), pdf_path.name, store, has_active_key=False)
+                    self.assertTrue(ok)
+
+            initial_count = store.count
+            self.assertGreater(initial_count, 0)
+            initial_sources = set(c["metadata"]["source"] for c in store.chunks_data)
+            self.assertEqual(initial_sources, {"sample.pdf", "sample_ml_primer.pdf"})
+
+            # Step 2: Create a distinct new PDF
+            new_pdf_name = "quantum_computing_intro.pdf"
+            new_pdf_path = Path(temp_dir) / new_pdf_name
+            distinct_text = (
+                "Quantum computing leverages superposition and entanglement of qubits "
+                "to perform complex calculations exponentially faster than classical computers."
+            )
+            generate_pdf([distinct_text], new_pdf_path)
+            with open(new_pdf_path, "rb") as f:
+                new_pdf_bytes = f.read()
+
+            try:
+                # Step 3: Index the uploaded PDF into the existing store
+                success, msg = index_pdf_file(
+                    new_pdf_bytes, new_pdf_name, store, has_active_key=False
+                )
+                self.assertTrue(success)
+                self.assertIn("Successfully indexed", msg)
+
+                # Step 4: Verify count increased (appended, NOT replaced)
+                self.assertGreater(store.count, initial_count)
+                new_count = store.count
+
+                # Step 5: Verify all original chunks remain intact
+                current_sources = set(c["metadata"]["source"] for c in store.chunks_data)
+                self.assertTrue(initial_sources.issubset(current_sources))
+                self.assertIn(new_pdf_name, current_sources)
+                self.assertEqual(len(current_sources), 3)
+
+                # Step 6: Verify duplicate upload is rejected without mutating count
+                dup_success, dup_msg = index_pdf_file(
+                    new_pdf_bytes, "copy_of_quantum.pdf", store, has_active_key=False
+                )
+                self.assertFalse(dup_success)
+                self.assertIn("duplicate detected", dup_msg)
+                self.assertEqual(store.count, new_count)
+
+                # Step 7: Verify search retrievability
+                query_vec = [0.1] * store.dimension
+                results = store.search(query_vec, top_k=store.count)
+                retrieved_sources = set(r.metadata.get("source") for r in results)
+                self.assertIn(new_pdf_name, retrieved_sources)
+
+                # Step 8: Verify persistence across load
+                reloaded_store = VectorStore(storage_dir=temp_dir)
+                reloaded_store.load()
+                self.assertEqual(reloaded_store.count, new_count)
+                self.assertTrue(reloaded_store.is_document_indexed(compute_file_hash(new_pdf_bytes)))
+            finally:
+                (UPLOADS_DIR / new_pdf_name).unlink(missing_ok=True)
+                (UPLOADS_DIR / "copy_of_quantum.pdf").unlink(missing_ok=True)
+
 
 if __name__ == "__main__":
     unittest.main()
